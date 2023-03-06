@@ -155,7 +155,7 @@ elif FLAGS.camera == "linear_movement":
     scene.camera.keyframe_insert("position", frame)
     scene.camera.keyframe_insert("quaternion", frame)
 elif FLAGS.camera == "spheric_movement":
-  radius = 6
+  radius = 8
   height = 10
   step = (FLAGS.max_camera_angle * np.pi / 180) / FLAGS.frame_end
 
