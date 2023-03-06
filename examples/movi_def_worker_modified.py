@@ -26,7 +26,7 @@ import numpy as np
 
 # --- Some configuration values
 # the region in which to place objects [(min), (max)]
-STATIC_SPAWN_REGION = [(-2, -2, 8), (2, 2, 12)]
+STATIC_SPAWN_REGION = [(-1, -1, 9), (1, 1, 11)]
 DYNAMIC_SPAWN_REGION = [(-2, -2, 1), (5, 5, 5)]
 VELOCITY_RANGE = [(-4., -4., 0.), (4., 4., 0.)]
 
