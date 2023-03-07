@@ -10,4 +10,4 @@ singularity exec ~/kubric.simg \
 	--camera=spheric_movement \
 	--max_camera_angle 90.0 \
 	--simulation_steps 0 \
-	{@:1}
+	$@
