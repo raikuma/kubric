@@ -184,7 +184,8 @@ logging.info("Randomly placing %d static objects:", num_static_objects)
 for i in range(num_static_objects):
   obj = gso.create(asset_id=rng.choice(active_split))
   assert isinstance(obj, kb.FileBasedObject)
-  scale = rng.uniform(0.75, 3.0)
+  # scale = rng.uniform(0.75, 3.0)
+  scale = 1
   obj.scale = scale / np.max(obj.bounds[1] - obj.bounds[0])
   obj.metadata["scale"] = scale
   scene += obj
