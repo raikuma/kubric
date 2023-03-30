@@ -155,37 +155,15 @@ elif FLAGS.camera == "linear_movement":
     scene.camera.keyframe_insert("position", frame)
     scene.camera.keyframe_insert("quaternion", frame)
 elif FLAGS.camera == "spheric_movement":
-  # radius = 4
-  # height = 10
-  # step = (FLAGS.max_camera_angle * np.pi / 180) / FLAGS.frame_end
+  radius = 4
+  height = 10
+  step = (FLAGS.max_camera_angle * np.pi / 180) / FLAGS.frame_end
 
-  # for frame in range(FLAGS.frame_start - 1, FLAGS.frame_end + 1):
-  #   scene.camera.position = np.array([radius * np.cos(step * frame), radius * np.sin(step * frame), height])
-  #   scene.camera.look_at((0, 0, height))
-  #   scene.camera.keyframe_insert("position", frame)
-  #   scene.camera.keyframe_insert("quaternion", frame)
-  
-  import pdb; pdb.set_trace()
-
-  scene.camera.position = np.array([1, 0, 0])
-  scene.camera.look_at((0, 0, 0))
-  scene.camera.keyframe_insert("position", 0)
-  scene.camera.keyframe_insert("quaternion", 0)
-
-  scene.camera.position = np.array([0, 1, 0])
-  scene.camera.look_at((0, 0, 0))
-  scene.camera.keyframe_insert("position", 1)
-  scene.camera.keyframe_insert("quaternion", 1)
-
-  scene.camera.position = np.array([0, 0, 1])
-  scene.camera.look_at((0, 0, 0))
-  scene.camera.keyframe_insert("position", 2)
-  scene.camera.keyframe_insert("quaternion", 2)
-
-  scene.camera.position = np.array([1, 1, 0])
-  scene.camera.look_at((0, 0, 0))
-  scene.camera.keyframe_insert("position", 3)
-  scene.camera.keyframe_insert("quaternion", 3)
+  for frame in range(FLAGS.frame_start - 1, FLAGS.frame_end + 1):
+    scene.camera.position = np.array([radius * np.cos(step * frame), radius * np.sin(step * frame), height])
+    scene.camera.look_at((0, 0, height))
+    scene.camera.keyframe_insert("position", frame)
+    scene.camera.keyframe_insert("quaternion", frame)
 
 
 # ---- Object placement ----
