@@ -26,7 +26,7 @@ import numpy as np
 
 # --- Some configuration values
 # the region in which to place objects [(min), (max)]
-STATIC_SPAWN_REGION = [(-2, -2, 8), (2, 2, 12)]
+STATIC_SPAWN_REGION = [(-1, -1, 9), (1, 1, 11)]
 DYNAMIC_SPAWN_REGION = [(-2, -2, 1), (5, 5, 5)]
 VELOCITY_RANGE = [(-4., -4., 0.), (4., 4., 0.)]
 
@@ -155,15 +155,37 @@ elif FLAGS.camera == "linear_movement":
     scene.camera.keyframe_insert("position", frame)
     scene.camera.keyframe_insert("quaternion", frame)
 elif FLAGS.camera == "spheric_movement":
-  radius = 8
-  height = 10
-  step = (FLAGS.max_camera_angle * np.pi / 180) / FLAGS.frame_end
+  # radius = 4
+  # height = 10
+  # step = (FLAGS.max_camera_angle * np.pi / 180) / FLAGS.frame_end
 
-  for frame in range(FLAGS.frame_start - 1, FLAGS.frame_end):
-    scene.camera.position = np.array([radius * np.cos(step * frame), radius * np.sin(step * frame), height])
-    scene.camera.look_at((0, 0, height))
-    scene.camera.keyframe_insert("position", frame)
-    scene.camera.keyframe_insert("quaternion", frame)
+  # for frame in range(FLAGS.frame_start - 1, FLAGS.frame_end + 1):
+  #   scene.camera.position = np.array([radius * np.cos(step * frame), radius * np.sin(step * frame), height])
+  #   scene.camera.look_at((0, 0, height))
+  #   scene.camera.keyframe_insert("position", frame)
+  #   scene.camera.keyframe_insert("quaternion", frame)
+  
+  import pdb; pdb.set_trace()
+
+  scene.camera.position = np.array([1, 0, 0])
+  scene.camera.look_at((0, 0, 0))
+  scene.camera.keyframe_insert("position", 0)
+  scene.camera.keyframe_insert("quaternion", 0)
+
+  scene.camera.position = np.array([0, 1, 0])
+  scene.camera.look_at((0, 0, 0))
+  scene.camera.keyframe_insert("position", 1)
+  scene.camera.keyframe_insert("quaternion", 1)
+
+  scene.camera.position = np.array([0, 0, 1])
+  scene.camera.look_at((0, 0, 0))
+  scene.camera.keyframe_insert("position", 2)
+  scene.camera.keyframe_insert("quaternion", 2)
+
+  scene.camera.position = np.array([1, 1, 0])
+  scene.camera.look_at((0, 0, 0))
+  scene.camera.keyframe_insert("position", 3)
+  scene.camera.keyframe_insert("quaternion", 3)
 
 
 # ---- Object placement ----
@@ -185,7 +207,7 @@ for i in range(num_static_objects):
   obj = gso.create(asset_id=rng.choice(active_split))
   assert isinstance(obj, kb.FileBasedObject)
   # scale = rng.uniform(0.75, 3.0)
-  scale = 1
+  scale = 0.8
   obj.scale = scale / np.max(obj.bounds[1] - obj.bounds[0])
   obj.metadata["scale"] = scale
   scene += obj
@@ -221,7 +243,8 @@ logging.info("Randomly placing %d dynamic objects:", num_dynamic_objects)
 for i in range(num_dynamic_objects):
   obj = gso.create(asset_id=rng.choice(active_split))
   assert isinstance(obj, kb.FileBasedObject)
-  scale = rng.uniform(0.75, 3.0)
+  # scale = rng.uniform(0.75, 3.0)
+  scale = 1
   obj.scale = scale / np.max(obj.bounds[1] - obj.bounds[0])
   obj.metadata["scale"] = scale
   scene += obj
@@ -253,27 +276,27 @@ if FLAGS.save_state:
 
 logging.info("Rendering the scene ...")
 data_stack = renderer.render()
-data_stack = {k: data_stack[k] for k in ['rgba', 'depth']}
+data_stack = {k: data_stack[k] for k in ['rgba', 'depth', 'segmentation']}
 
 # --- Postprocessing
-# kb.compute_visibility(data_stack["segmentation"], scene.assets)
-# visible_foreground_assets = [asset for asset in scene.foreground_assets
-#                              if np.max(asset.metadata["visibility"]) > 0]
-# visible_foreground_assets = sorted(  # sort assets by their visibility
-#     visible_foreground_assets,
-#     key=lambda asset: np.sum(asset.metadata["visibility"]),
-#     reverse=True)
+kb.compute_visibility(data_stack["segmentation"], scene.assets)
+visible_foreground_assets = [asset for asset in scene.foreground_assets
+                             if np.max(asset.metadata["visibility"]) > 0]
+visible_foreground_assets = sorted(  # sort assets by their visibility
+    visible_foreground_assets,
+    key=lambda asset: np.sum(asset.metadata["visibility"]),
+    reverse=True)
 
-# data_stack["segmentation"] = kb.adjust_segmentation_idxs(
-#     data_stack["segmentation"],
-#     scene.assets,
-#     visible_foreground_assets)
-# scene.metadata["num_instances"] = len(visible_foreground_assets)
+data_stack["segmentation"] = kb.adjust_segmentation_idxs(
+    data_stack["segmentation"],
+    scene.assets,
+    visible_foreground_assets)
+scene.metadata["num_instances"] = len(visible_foreground_assets)
 
 # Save to image files
 kb.write_image_dict(data_stack, output_dir)
-# kb.post_processing.compute_bboxes(data_stack["segmentation"],
-#                                   visible_foreground_assets)
+kb.post_processing.compute_bboxes(data_stack["segmentation"],
+                                  visible_foreground_assets)
 
 # --- Metadata
 logging.info("Collecting and storing metadata for each object.")
@@ -281,7 +304,7 @@ kb.write_json(filename=output_dir / "metadata.json", data={
     "flags": vars(FLAGS),
     "metadata": kb.get_scene_metadata(scene),
     "camera": kb.get_camera_info(scene.camera),
-    # "instances": kb.get_instance_info(scene, visible_foreground_assets),
+    "instances": kb.get_instance_info(scene, visible_foreground_assets),
 })
 # kb.write_json(filename=output_dir / "events.json", data={
 #     "collisions":  kb.process_collisions(
